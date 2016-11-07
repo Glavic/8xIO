@@ -2,8 +2,8 @@ package main
 
 import (
 	"os"
-	"time"
 	"path/filepath"
+	"time"
 
 	. "./app"
 )
@@ -11,7 +11,7 @@ import (
 func main() {
 	// init Reference
 	Ref = Reference{
-		DBFile: ".data.db",
+		DBFile:  ".data.db",
 		WebPort: 8080,
 	}
 

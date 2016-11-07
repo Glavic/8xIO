@@ -21,10 +21,13 @@ func I2C() {
 	Print("... found %d devices.\n", len(Ref.IOs))
 
 	Print("Restoring I2C devices state...\n")
+	restore_count := 0
 	for _, IO := range Ref.IOs {
-		IO.RestoreState()
+		if IO.RestoreState() {
+			restore_count += 1
+		}
 	}
-	Print("... successfully restored.\n")
+	Print("... restored %d devices.\n", restore_count)
 }
 
 type I2Cx struct {
@@ -224,15 +227,17 @@ func (t *I2Cx) ChangeState(output byte) {
 	k := Ref.DB.PrepareValue(t.Bus, t.Addr)
 	Ref.DB.Set(bucket, k, Ref.DB.PrepareValue(output))
 }
-func (t *I2Cx) RestoreState() {
+func (t *I2Cx) RestoreState() bool {
 	bucket := "DEVICE-OUTPUT"
 	k := Ref.DB.PrepareValue(t.Bus, t.Addr)
 	if output_string, ok := Ref.DB.Get(bucket, k); ok {
 		i, err := strconv.Atoi(output_string)
 		if err == nil {
 			t.ChangeState(byte(i))
+			return true
 		}
 	}
+	return false
 }
 
 func (t I2Cx_bits) Len() int {

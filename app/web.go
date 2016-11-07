@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"time"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -267,5 +268,5 @@ func webLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func webStatic(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, Ref.RootPath + r.URL.Path[1:])
+	http.ServeFile(w, r, Ref.RootPath+r.URL.Path[1:])
 }

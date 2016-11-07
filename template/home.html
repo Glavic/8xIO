@@ -7,7 +7,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-	<h1>Jusuf KING</h1>
 	<ul id="Home">
 		{{range $IObit := .IObits}}
 			<li data-addr="{{$IObit.IO.Addr}}" data-bit="{{$IObit.Bit}}" data-state="{{if $IObit.State}}ON{{else}}OFF{{end}}" data-change-uri="/change?addr={{$IObit.IO.Addr}}&amp;bit={{$IObit.Bit}}">
