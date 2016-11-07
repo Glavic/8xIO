@@ -1,0 +1,135 @@
+*,
+*:before,
+*:after {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+* {
+	margin: 0;
+	padding: 0;
+	font-family: Verdana;
+	font-size: 14px;
+}
+
+h1 {
+	text-align: center;
+	font-size: 30px;
+	line-height: 30px;
+	padding: 20px 0;
+}
+
+#Config {
+	border-collapse: collapse;
+}
+#Config th,
+#Config td {
+	border: 1px solid #888;
+	padding: 3px 10px;
+	text-align: center;
+}
+#Config th {
+	background: #f0f0f0;
+}
+#Config td.addr {
+	font-weight: bold;
+}
+#Config td.state a {
+	display: inline-block;
+	width: 30px;
+	height: 25px;
+	background: gray;
+}
+#Config tr[data-state="ON"] td.state a {
+	background: green;
+}
+#Config tr[data-state="OFF"] td.state a {
+	background: red;
+}
+
+#Config td.name input,
+#Config td.ord input {
+	font-size: 12px;
+	border: none;
+	background: #f0f0f0;
+	padding: 4px;
+	width: 200px;
+}
+#Config td.ord input {
+	text-align: center;
+	width: 70px;
+}
+
+
+#Home {
+	list-style-type: none;
+	max-width: 860px;
+	margin: 0 auto;
+}
+#Home li {
+	float: left;
+	margin: 0 5px 5px 0;
+	width: 95px;
+	height: 60px;
+	padding: 10px;
+	color: #333;
+	text-align: center;
+	cursor: pointer;
+	/*word-break: break-all;*/
+
+	border: 2px solid #333;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+
+	display: flex;
+	justify-content: center; /* align horizontal */
+	align-items: center; /* align vertical */
+}
+#Home li[data-state="ON"] {
+	background: #79c425;
+}
+#Home li[data-state="OFF"] {
+	background: #d4352a;
+	color: #fff;
+}
+@media (max-width: 375px) {
+	#Home li {
+		width: 32%;
+		margin: 0 0 7px 2%;
+	}
+	#Home li:nth-child(3n+1) {
+		clear: both;
+		margin-left: 0;
+	}
+}
+@media (min-width: 376px) and (max-width: 500px) {
+	#Home li {
+		width: 24%;
+		margin: 0 0 5px 1%;
+	}
+	#Home li:nth-child(4n+1) {
+		clear: both;
+		margin-left: 0;
+	}
+}
+@media (min-width: 501px) and (max-width: 640px) {
+	#Home li {
+		width: 19%;
+		margin: 0 0 5px 1%;
+	}
+	#Home li:nth-child(5n+1) {
+		clear: both;
+		margin-left: 0;
+	}
+}
+@media (min-width: 641px) {
+	#Home li {
+		width: 15%;
+		margin: 0 0 5px 2%;
+	}
+	#Home li:nth-child(6n+1) {
+		clear: both;
+		margin-left: 0;
+	}
+}
