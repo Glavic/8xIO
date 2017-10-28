@@ -199,20 +199,15 @@ func webChange(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// change state
-	output, err := IO.Read(0x14)
-	if err != nil {
-		Print("Web | error | webChange() | %s\n", err)
-		return
-	}
-	if HasBit(output, bit) {
-		output = ClearBit(output, bit)
+	if HasBit(IO.OutputState, bit) {
+		IO.OutputState = ClearBit(IO.OutputState, bit)
 		fmt.Fprintf(w, "OFF")
 	} else {
-		output = SetBit(output, bit)
+		IO.OutputState = SetBit(IO.OutputState, bit)
 		fmt.Fprintf(w, "ON")
 	}
-	IO.ChangeState(output)
-	Print("Web | Device #%d-0x%x has new state = %s\n", IO.Bus, IO.Addr, ConvertTo8BitBinaryString(output))
+	IO.ChangeState()
+	Print("Web | Device #%d-0x%x has new state = %s\n", IO.Bus, IO.Addr, ConvertTo8BitBinaryString(IO.OutputState))
 }
 
 func webConfig(w http.ResponseWriter, r *http.Request) {

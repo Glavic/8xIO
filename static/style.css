@@ -85,6 +85,13 @@ h1 {
 	display: flex;
 	justify-content: center; /* align horizontal */
 	align-items: center; /* align vertical */
+
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 #Home li[data-state="ON"] {
 	background: #79c425;

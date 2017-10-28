@@ -34,6 +34,14 @@ func ClearBit(n byte, pos byte) byte {
 	n &= mask
 	return n
 }
+func ToggleBit(n byte, pos byte) byte {
+	if HasBit(n, pos) {
+		n = ClearBit(n, pos)
+	} else {
+		n = SetBit(n, pos)
+	}
+	return n
+}
 func HasBit(n byte, pos byte) bool {
 	val := n & (1 << pos)
 	return (val > 0)
