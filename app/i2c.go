@@ -66,7 +66,7 @@ func I2C_scan(bus byte) ([]byte, error) {
 		"-y",
 		fmt.Sprintf("%d", bus),
 	}
-	out, err := exec.Command("i2cdetect", args...).Output()
+	out, err := exec.Command("/usr/sbin/i2cdetect", args...).Output()
 	out_string := string(out)
 	if err != nil || out_string[5:9] != "0  1" {
 		return nil, errors.New("Cannot retrive any info from bus #" + strconv.Itoa(int(bus)))
