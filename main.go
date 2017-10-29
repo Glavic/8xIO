@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 
 	. "./app"
 )
@@ -33,21 +33,30 @@ func main() {
 	Ref.DB = db
 	Print("DB set up and running.\n")
 
-	// setup I2C devices
-	I2C()
-
-	// setup web server
-	Print("Starting web server on port %d...\n", Ref.WebPort)
-	go WebStart()
-
-	// inf. loop checking phisical switches
-	Print("Infinitive loop for checking phisical switches...\n")
-	for {
-		//start_time := time.Now()
-		for _, IO := range Ref.IOs {
-			IO.Check()
-		}
-		//print("Checked all in %s\n", time.Since(start_time))
-		time.Sleep(100 * time.Millisecond)
+	// load boards
+	b := BoardsInit()
+	for _, board := range b.List {
+		fmt.Printf("Bus:%d | Addr:%#v\n", board.Bus, board.Addr)
 	}
+	fmt.Println(b.Find(1, 0x22))
+
+	/*
+		// setup I2C devices
+		I2C()
+
+		// setup web server
+		Print("Starting web server on port %d...\n", Ref.WebPort)
+		go WebStart()
+
+		// inf. loop checking phisical switches
+		Print("Infinitive loop for checking phisical switches...\n")
+		for {
+			//start_time := time.Now()
+			for _, IO := range Ref.IOs {
+				IO.Check()
+			}
+			//print("Checked all in %s\n", time.Since(start_time))
+			time.Sleep(100 * time.Millisecond)
+		}
+	*/
 }
