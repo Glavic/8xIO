@@ -1,9 +1,9 @@
-#!/usr/bin/bash
+#!/bin/bash
 
-_PATH="/home/pi/8xio/"
-_PID="${_PATH}run.pid"
-_LOG="${_PATH}run.log"
-_PROGRAM="${_PATH}8xio"
+_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+_PID="${_PATH}/run.pid"
+_LOG="${_PATH}/run.log"
+_PROGRAM="${_PATH}/8xio"
 
 cd "${_PATH}"
 
