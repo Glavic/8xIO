@@ -167,9 +167,16 @@ func (t *I2Cx) Check() {
 			continue
 		}
 		t.InputState[bit] = true
-		t.OutputState = ToggleBit(t.OutputState, bit)
+
+		status := "OFF"
+		if HasBit(t.OutputState, bit) {
+			t.OutputState = ClearBit(t.OutputState, bit)
+		} else {
+			t.OutputState = SetBit(t.OutputState, bit)
+			status = "ON"
+		}
 		t.ChangeState()
-		Print("Phisical | Device #%d-0x%x has new state = %s\n", t.Bus, t.Addr, ConvertTo8BitBinaryString(t.OutputState))
+		Print("Phisical | Device #%d-0x%x-%d = %s (%s)\n", t.Bus, t.Addr, bit, status, ConvertTo8BitBinaryString(t.OutputState))
 	}
 }
 func (t *I2Cx) ChangeState() {
