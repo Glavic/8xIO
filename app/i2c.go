@@ -186,8 +186,8 @@ func (t *I2Cx) Check() {
 			diff_ms *= -1
 		}
 
-		// don't switch output if trigger is not pressed for at least Xms
-		if diff_ms <= 310 {
+		// don't switch output if trigger is not pressed for at least 60ms
+		if diff_ms <= 60 {
 			continue
 		}
 		t.InputState[bit].Switched = true
