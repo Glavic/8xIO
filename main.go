@@ -45,6 +45,6 @@ func main() {
 		for _, IO := range Ref.IOs {
 			IO.Check()
 		}
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(60 * time.Millisecond)
 	}
 }
