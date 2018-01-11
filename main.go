@@ -1,11 +1,10 @@
 package main
 
 import (
+	. "./app"
 	"os"
 	"path/filepath"
 	"time"
-
-	. "./app"
 )
 
 func main() {
@@ -43,11 +42,9 @@ func main() {
 	// inf. loop checking phisical switches
 	Print("Infinitive loop for checking phisical switches...\n")
 	for {
-		//start_time := time.Now()
 		for _, IO := range Ref.IOs {
 			IO.Check()
 		}
-		//print("Checked all in %s\n", time.Since(start_time))
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(50 * time.Millisecond)
 	}
 }

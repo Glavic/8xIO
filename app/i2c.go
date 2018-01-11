@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/exp/io/i2c"
 )
@@ -35,8 +36,12 @@ type I2Cx struct {
 	Addr        byte
 	AddrHex     string
 	Device      *i2c.Device
-	InputState  [8]bool
+	InputState  [8]I2Cx_input_state
 	OutputState byte
+}
+type I2Cx_input_state struct {
+	InputTime time.Time
+	Switched  bool
 }
 type I2Cx_bits []I2Cx_bit
 type I2Cx_bit struct {
@@ -157,16 +162,35 @@ func (t *I2Cx) Check() {
 		return
 	}
 
+	var now = time.Now()
 	var bit byte = 0
 	for bit = 0; bit < 8; bit++ {
 		if !HasBit(input, bit) {
-			t.InputState[bit] = false
+			t.InputState[bit] = I2Cx_input_state{}
 			continue
 		}
-		if t.InputState[bit] {
+
+		// if output was already switched, ignore
+		if t.InputState[bit].Switched {
 			continue
 		}
-		t.InputState[bit] = true
+
+		// set time when input button was pressed
+		if t.InputState[bit].InputTime.IsZero() {
+			t.InputState[bit].InputTime = time.Now()
+		}
+
+		diff := t.InputState[bit].InputTime.Sub(now)
+		diff_ms := diff.Nanoseconds() / 1000000
+		if diff_ms < 0 {
+			diff_ms *= -1
+		}
+
+		// don't switch output if trigger is not pressed for at least Xms
+		if diff_ms <= 310 {
+			continue
+		}
+		t.InputState[bit].Switched = true
 
 		status := "OFF"
 		if HasBit(t.OutputState, bit) {
