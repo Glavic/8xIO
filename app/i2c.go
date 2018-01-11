@@ -166,6 +166,10 @@ func (t *I2Cx) Check() {
 	var bit byte = 0
 	for bit = 0; bit < 8; bit++ {
 		if !HasBit(input, bit) {
+			if !t.InputState[bit].InputTime.IsZero() {
+				diff := now.Sub(t.InputState[bit].InputTime)
+				Print("Phisical | Button #%d-0x%x-%d was released in %s.\n", t.Bus, t.Addr, bit, diff)
+			}
 			t.InputState[bit] = I2Cx_input_state{}
 			continue
 		}
@@ -186,8 +190,8 @@ func (t *I2Cx) Check() {
 			diff_ms *= -1
 		}
 
-		// don't switch output if trigger is not pressed for at least 50ms
-		if diff_ms < 50 {
+		// don't switch output if trigger is not pressed for at least 60ms
+		if diff_ms < 60 {
 			continue
 		}
 		t.InputState[bit].Switched = true
