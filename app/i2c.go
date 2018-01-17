@@ -162,13 +162,17 @@ func (t *I2Cx) Check() {
 		return
 	}
 
-	var now = time.Now()
+	var now = time.Now().Add(-Ref.ButtonPressDelay)
 	var bit byte = 0
 	for bit = 0; bit < 8; bit++ {
 		if !HasBit(input, bit) {
 			if !t.InputState[bit].InputTime.IsZero() {
 				diff := now.Sub(t.InputState[bit].InputTime)
-				Print("Phisical | Button #%d-0x%x-%d was released in %s\n", t.Bus, t.Addr, bit, diff)
+				ignored := ""
+				if !t.InputState[bit].Switched {
+					ignored = " (ignored)"
+				}
+				Print("Phisical | Button press #%d-0x%x-%d was released in %s%s\n", t.Bus, t.Addr, bit, diff, ignored)
 			}
 			t.InputState[bit] = I2Cx_input_state{}
 			continue

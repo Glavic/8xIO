@@ -40,11 +40,12 @@ func main() {
 	go WebStart()
 
 	// inf. loop checking phisical switches
+	Ref.ButtonPressDelay = 10 * time.Millisecond
 	Print("Infinitive loop for checking phisical switches...\n")
 	for {
 		for _, IO := range Ref.IOs {
 			IO.Check()
 		}
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(Ref.ButtonPressDelay)
 	}
 }

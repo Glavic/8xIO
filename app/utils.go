@@ -18,6 +18,7 @@ type Reference struct {
 	DB       *DBx
 	IOs      []*I2Cx
 	WebPort  int
+	ButtonPressDelay time.Duration
 }
 
 func Print(format string, a ...interface{}) {
