@@ -209,7 +209,7 @@ func webChange(w http.ResponseWriter, r *http.Request) {
 		status = "ON"
 	}
 	IO.ChangeState()
-	Print("Web | Device #%d-0x%x-%d = %s (%s)\n", IO.Bus, IO.Addr, bit, status, ConvertTo8BitBinaryString(IO.OutputState))
+	Print("Web | Device #%d-0x%x-%d = %s (%s) | IP: %s\n", IO.Bus, IO.Addr, bit, status, ConvertTo8BitBinaryString(IO.OutputState), r.RemoteAddr)
 }
 
 func webConfig(w http.ResponseWriter, r *http.Request) {

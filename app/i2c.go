@@ -168,7 +168,7 @@ func (t *I2Cx) Check() {
 		if !HasBit(input, bit) {
 			if !t.InputState[bit].InputTime.IsZero() {
 				diff := now.Sub(t.InputState[bit].InputTime)
-				Print("Phisical | Button #%d-0x%x-%d was released in %s.\n", t.Bus, t.Addr, bit, diff)
+				Print("Phisical | Button #%d-0x%x-%d was released in %s\n", t.Bus, t.Addr, bit, diff)
 			}
 			t.InputState[bit] = I2Cx_input_state{}
 			continue
