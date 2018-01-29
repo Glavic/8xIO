@@ -13,11 +13,11 @@ var (
 )
 
 type Reference struct {
-	RootPath string
-	DBFile   string
-	DB       *DBx
-	IOs      []*I2Cx
-	WebPort  int
+	RootPath         string
+	DBFile           string
+	DB               *DBx
+	IOs              []*I2Cx
+	WebPort          int
 	ButtonPressDelay time.Duration
 }
 
