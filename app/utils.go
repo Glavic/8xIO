@@ -19,27 +19,28 @@ type Reference struct {
 	ButtonPressDelay time.Duration
 }
 
-func SetBit(n byte, pos byte) byte {
+func SetBit(n, pos byte) byte {
 	n |= (1 << pos)
 	return n
 }
-func ClearBit(n byte, pos byte) byte {
+
+func ClearBit(n, pos byte) byte {
 	var mask byte = ^(1 << pos)
 	n &= mask
 	return n
 }
-func ToggleBit(n byte, pos byte) byte {
+
+func ToggleBit(n, pos byte) byte {
 	if HasBit(n, pos) {
-		n = ClearBit(n, pos)
-	} else {
-		n = SetBit(n, pos)
+		return ClearBit(n, pos)
 	}
-	return n
+	return SetBit(n, pos)
 }
-func HasBit(n byte, pos byte) bool {
-	val := n & (1 << pos)
-	return (val > 0)
+
+func HasBit(n, pos byte) bool {
+	return (n & (1 << pos)) > 0
 }
+
 func ConvertTo8BitBinaryString(num byte) string {
 	bin := strconv.FormatInt(int64(num), 2)
 	return strings.Repeat("0", 8-len(bin)) + bin
