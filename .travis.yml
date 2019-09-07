@@ -1,0 +1,16 @@
+language: go
+go:
+  - 1.12
+script:
+  # Fail on first non 0 exit code
+  - set -e
+  # Check if Go source code is unformatted
+  - UNFMT_LIST=$(gofmt -l $(find . -iname '*.go' -type f))
+  - if [ "${UNFMT_LIST}" ]; then echo "${UNFMT_LIST}"; exit 1; fi
+  # Linter for Go source code
+  #- go get -u golang.org/x/lint/golint
+  #- golint -set_exit_status ./...
+  # Vet examines Go source code and reports suspicious constructs
+  - go vet ./...
+  # Can app be built?
+  - go build
