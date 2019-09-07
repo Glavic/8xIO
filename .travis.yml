@@ -1,6 +1,8 @@
 language: go
 go:
   - 1.12
+env:
+  - GO111MODULE=on
 script:
   # Fail on first non 0 exit code
   - set -e
