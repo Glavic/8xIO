@@ -1,10 +1,11 @@
 package main
 
 import (
-	. "./app"
 	"os"
 	"path/filepath"
 	"time"
+
+	. "github.com/Glavic/8xIO/app"
 )
 
 func main() {
