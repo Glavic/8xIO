@@ -1,8 +1,6 @@
 package app
 
 import (
-	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -19,11 +17,6 @@ type Reference struct {
 	IOs              []*I2Cx
 	WebPort          int
 	ButtonPressDelay time.Duration
-}
-
-func Print(format string, a ...interface{}) {
-	fmt.Fprint(os.Stdout, "[", time.Now().String(), "] ")
-	fmt.Fprintf(os.Stdout, format, a...)
 }
 
 func SetBit(n byte, pos byte) byte {

@@ -9,16 +9,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/websocket"
-)
-
-var (
-	upgrader = websocket.Upgrader{} // use default options
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 func WebStart() {
 	http.HandleFunc("/", webHome)
-	http.HandleFunc("/ws", webWS)
 	http.HandleFunc("/state", webState)
 	http.HandleFunc("/change", webChange)
 	http.HandleFunc("/config", webConfig)
@@ -27,7 +23,10 @@ func WebStart() {
 	for {
 		err := http.ListenAndServe(":"+strconv.Itoa(Ref.WebPort), nil)
 		if err != nil {
-			Print("Web | error | StartWebServer() | %s\n", err)
+			log.WithFields(log.Fields{
+				"app":  "web",
+				"func": "WebStart",
+			}).Error(err)
 		}
 		time.Sleep(5 * time.Second)
 	}
@@ -38,7 +37,10 @@ func webHome(w http.ResponseWriter, r *http.Request) {
 
 	t, err := template.ParseFiles(Ref.RootPath + "template/home.html")
 	if err != nil {
-		Print("Web | error | webHome() | %s\n", err)
+		log.WithFields(log.Fields{
+			"app":  "web",
+			"func": "webHome",
+		}).Error(errors.Wrap(err, "failed to parse template"))
 		return
 	}
 
@@ -58,31 +60,11 @@ func webHome(w http.ResponseWriter, r *http.Request) {
 	}
 	err = t.Execute(w, data)
 	if err != nil {
-		Print("Web | error | webHome() | %s\n", err)
+		log.WithFields(log.Fields{
+			"app":  "web",
+			"func": "webHome",
+		}).Error(errors.Wrap(err, "failed to execute"))
 		return
-	}
-}
-
-func webWS(w http.ResponseWriter, r *http.Request) {
-	c, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		Print("WebWS | error | %s\n", err)
-		return
-	}
-	defer c.Close()
-
-	for {
-		mt, message, err := c.ReadMessage()
-		if err != nil {
-			Print("WebWS read error | %s\n", err)
-			break
-		}
-		Print("WebWS recv | %s\n", message)
-		err = c.WriteMessage(mt, message)
-		if err != nil {
-			Print("WebWS | write error | %s\n", err)
-			break
-		}
 	}
 }
 
@@ -97,7 +79,7 @@ func webState(w http.ResponseWriter, r *http.Request) {
 			state[IO.Addr] = IO.OutputState
 		}
 		loop := true
-		loop_count := 0
+		loopCount := 0
 		for loop {
 			for _, IO := range Ref.IOs {
 				if state[IO.Addr] != IO.OutputState {
@@ -105,10 +87,10 @@ func webState(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 			}
-			loop_count++
+			loopCount++
 			time.Sleep(10 * time.Millisecond)
 			// 100 loops is 1sec
-			if loop_count > 500 {
+			if loopCount > 500 {
 				loop = false
 			}
 		}
@@ -127,16 +109,23 @@ func webState(w http.ResponseWriter, r *http.Request) {
 
 func webChange(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	addrString := r.URL.Query().Get("addr")
+	bitString := r.URL.Query().Get("bit")
+	logger := log.WithFields(log.Fields{
+		"app":  "web",
+		"func": "webChange",
+		"addr": addrString,
+		"bit":  bitString,
+	})
 
-	addr_string := r.URL.Query().Get("addr")
-	addr64, err := strconv.ParseUint(addr_string, 10, 8)
+	addr64, err := strconv.ParseUint(addrString, 10, 8)
 	if err != nil {
-		Print("Web | notice | webChange() | called with invalid 'addr' parameter = '%s'\n", addr_string)
+		logger.Warn("called with invalid 'addr' parameter")
 		return
 	}
 	addr := byte(addr64)
 	if addr < 0 || 255 < addr {
-		Print("Web | notice | webChange() | called with out of bound 'addr' parameter = '%s'\n", addr_string)
+		logger.Warn("called without of bound 'addr' parameter")
 		return
 	}
 
@@ -148,19 +137,18 @@ func webChange(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if IO == nil {
-		Print("Web | notice | webChange() | called with unknown 'addr' parameter = '%s'\n", addr_string)
+		logger.Warn("called with unknown 'addr' parameter")
 		return
 	}
 
-	bit_string := r.URL.Query().Get("bit")
-	bit64, err := strconv.ParseUint(bit_string, 10, 32)
+	bit64, err := strconv.ParseUint(bitString, 10, 32)
 	if err != nil {
-		Print("Web | notice | webChange() | called with invalid 'bit' parameter = '%s'\n", bit_string)
+		logger.Warn("called with invalid 'bit' parameter")
 		return
 	}
 	bit := byte(bit64)
 	if 0 > bit || bit > 7 {
-		Print("Web | notice | webChange() | called with out of bound 'bit' parameter = '%s'\n", bit_string)
+		logger.Warn("called without of bound 'bit' parameter")
 		return
 	}
 
@@ -171,11 +159,11 @@ func webChange(w http.ResponseWriter, r *http.Request) {
 		k := Ref.DB.PrepareValue(IO.Bus, IO.Addr, bit)
 		if name != "" {
 			Ref.DB.Set(bucket, k, name)
-			Print("Web | Device #%d-0x%x had bit %d named as '%s'\n", IO.Bus, IO.Addr, bit, name)
+			logger.Infof("device #%d-0x%x had bit %d named as '%s'", IO.Bus, IO.Addr, bit, name)
 			fmt.Fprintf(w, "NAME-SET")
 		} else {
 			Ref.DB.Del(bucket, k)
-			Print("Web | Device #%d-0x%x had bit %d name removed\n", IO.Bus, IO.Addr, bit)
+			logger.Infof("device #%d-0x%x had bit %d name removed", IO.Bus, IO.Addr, bit)
 			fmt.Fprintf(w, "NAME-DEL")
 		}
 		return
@@ -188,11 +176,11 @@ func webChange(w http.ResponseWriter, r *http.Request) {
 		k := Ref.DB.PrepareValue(IO.Bus, IO.Addr, bit)
 		if ord != "" {
 			Ref.DB.Set(bucket, k, ord)
-			Print("Web | Device #%d-0x%x had bit %d order as '%s'\n", IO.Bus, IO.Addr, bit, ord)
+			logger.Infof("device #%d-0x%x had bit %d order as '%s'", IO.Bus, IO.Addr, bit, ord)
 			fmt.Fprintf(w, "ORD-SET")
 		} else {
 			Ref.DB.Del(bucket, k)
-			Print("Web | Device #%d-0x%x had bit %d order removed\n", IO.Bus, IO.Addr, bit)
+			logger.Infof("device #%d-0x%x had bit %d order removed", IO.Bus, IO.Addr, bit)
 			fmt.Fprintf(w, "ORD-DEL")
 		}
 		return
@@ -209,7 +197,7 @@ func webChange(w http.ResponseWriter, r *http.Request) {
 		status = "ON"
 	}
 	IO.ChangeState()
-	Print("Web | Device #%d-0x%x-%d = %s (%s) | IP: %s\n", IO.Bus, IO.Addr, bit, status, ConvertTo8BitBinaryString(IO.OutputState), r.RemoteAddr)
+	logger.WithField("ip", r.RemoteAddr).Infof("device #%d-0x%x-%d = %s (%s)", IO.Bus, IO.Addr, bit, status, ConvertTo8BitBinaryString(IO.OutputState))
 }
 
 func webConfig(w http.ResponseWriter, r *http.Request) {
@@ -217,7 +205,10 @@ func webConfig(w http.ResponseWriter, r *http.Request) {
 
 	t, err := template.ParseFiles(Ref.RootPath + "template/config.html")
 	if err != nil {
-		Print("Web | error | webConfig() | %s\n", err)
+		log.WithFields(log.Fields{
+			"app":  "web",
+			"func": "webConfig",
+		}).Error(errors.Wrap(err, "failed to parse template"))
 		return
 	}
 
@@ -232,7 +223,10 @@ func webConfig(w http.ResponseWriter, r *http.Request) {
 	}
 	err = t.Execute(w, data)
 	if err != nil {
-		Print("Web | error | webConfig() | %s\n", err)
+		log.WithFields(log.Fields{
+			"app":  "web",
+			"func": "webConfig",
+		}).Error(errors.Wrap(err, "failed to execute"))
 		return
 	}
 }
@@ -243,7 +237,10 @@ func webLog(w http.ResponseWriter, r *http.Request) {
 	fname := Ref.RootPath + "run.log"
 	file, err := os.Open(fname)
 	if err != nil {
-		Print("Web | error | webLog() | %s\n", err)
+		log.WithFields(log.Fields{
+			"app":  "web",
+			"func": "webLog",
+		}).Error(errors.Wrap(err, "failed to find log file"))
 		return
 	}
 	defer file.Close()
@@ -257,7 +254,10 @@ func webLog(w http.ResponseWriter, r *http.Request) {
 	start := stat.Size() - size
 	_, err = file.ReadAt(buf, start)
 	if err != nil {
-		Print("Web | error | webLog() | %s\n", err)
+		log.WithFields(log.Fields{
+			"app":  "web",
+			"func": "webLog",
+		}).Error(errors.Wrap(err, "failed to read log file"))
 		return
 	}
 	fmt.Fprintf(w, "...")

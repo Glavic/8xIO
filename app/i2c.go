@@ -3,32 +3,31 @@ package app
 import (
 	"errors"
 	"fmt"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/exp/io/i2c"
 )
 
 func I2C() {
 	I2C_find()
-	Print("Searching for I2C devices...\n")
+	log.Info("searching for I2C devices...")
 	if len(Ref.IOs) < 1 {
-		Print("... no I2C devices found :(\n")
-		os.Exit(0)
+		log.Fatal("... no I2C devices found :(")
 	}
-	Print("... found %d devices.\n", len(Ref.IOs))
+	log.Infof("... found %d devices", len(Ref.IOs))
 
-	Print("Restoring I2C devices state...\n")
-	restore_count := 0
+	log.Info("Restoring I2C devices state...")
+	restoreCount := 0
 	for _, IO := range Ref.IOs {
 		if IO.RestoreState() {
-			restore_count += 1
+			restoreCount++
 		}
 	}
-	Print("... restored %d devices.\n", restore_count)
+	log.Infof("... restored %d devices", restoreCount)
 }
 
 type I2Cx struct {
@@ -62,7 +61,7 @@ func I2C_find() {
 			IO := I2C_create(bus, addr)
 			IO.SetupIC()
 			Ref.IOs = append(Ref.IOs, IO)
-			Print("Device #%d-0x%x found\n", bus, addr)
+			log.Infof("device #%d-0x%x found", bus, addr)
 		}
 	}
 }
@@ -101,7 +100,7 @@ func I2C_scan(bus byte) ([]byte, error) {
 func I2C_create(bus, addr byte) *I2Cx {
 	dev, err := i2c.Open(&i2c.Devfs{Dev: "/dev/i2c-" + strconv.Itoa(int(bus))}, int(addr))
 	if err != nil {
-		Print("Device #%d-0x%x cannot be opened?\n", bus, addr)
+		log.Errorf("device #%d-0x%x cannot be opened?", bus, addr)
 	}
 	return &I2Cx{
 		Bus:     bus,
@@ -172,7 +171,7 @@ func (t *I2Cx) Check() {
 				if !t.InputState[bit].Switched {
 					ignored = " (ignored)"
 				}
-				Print("Phisical | Button press #%d-0x%x-%d was released in %s%s\n", t.Bus, t.Addr, bit, diff, ignored)
+				log.Infof("phisical | button press #%d-0x%x-%d was released in %s%s", t.Bus, t.Addr, bit, diff, ignored)
 			}
 			t.InputState[bit] = I2Cx_input_state{}
 			continue
@@ -189,13 +188,13 @@ func (t *I2Cx) Check() {
 		}
 
 		diff := t.InputState[bit].InputTime.Sub(now)
-		diff_ms := diff.Nanoseconds() / 1000000
-		if diff_ms < 0 {
-			diff_ms *= -1
+		diffMilliseconds := diff.Nanoseconds() / 1000000
+		if diffMilliseconds < 0 {
+			diffMilliseconds *= -1
 		}
 
 		// don't switch output if trigger is not pressed for at least 60ms
-		if diff_ms < 60 {
+		if diffMilliseconds < 60 {
 			continue
 		}
 		t.InputState[bit].Switched = true
@@ -208,7 +207,7 @@ func (t *I2Cx) Check() {
 			status = "ON"
 		}
 		t.ChangeState()
-		Print("Phisical | Device #%d-0x%x-%d = %s (%s)\n", t.Bus, t.Addr, bit, status, ConvertTo8BitBinaryString(t.OutputState))
+		log.Infof("phisical | device #%d-0x%x-%d = %s (%s)", t.Bus, t.Addr, bit, status, ConvertTo8BitBinaryString(t.OutputState))
 	}
 }
 func (t *I2Cx) ChangeState() {
