@@ -20,3 +20,13 @@ script:
   - go build
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+deploy:
+  provider: releases
+  api_key:
+    secure: sLzD6UxMxxeQCXiBANbMy2ji/zNChD3R3nuL0GGtNHHVAjAmUSg/oPXgGw4xJuUpG/zdO4BBLGgqnZ2SkveYwv6b2vxQlDSki3hLKaZg0/sKu/oDBrbChoNJeQtGCBBCATXVwxW47uVacB/SHVHIyaU45o+PwKZgSjLj5qma4ktTdTEJrRrAOT4y+mGa+fRCskCutercMuEYOiQFxwygOVyUZB956ld+SNzJcYiXDRNU8G52wCWqHycK5ikCWJpF+gebdeglSkScU1gFgjJ1NU5yh3g/bJzG+3MAp4o4KgFUXKNE8EIrGINd18Yh0vCmrTb1TUxxLu0tdlolZ3qkHYgzz/xolKhiRKIfIvmqaIbA5RQfc+dIkUgMp7uBEEzD7Y4ofqdw0+iPwl+jUx/aJjWsIkNQkjOp00mnUf5x020FZvas1xm4K9yN2FrzTGY1qKeeEsbn4wAR11YndCPcUcR7bz5DL/bVS0YgW6wumRPg0WY1yb6ilc92rdI2m/Y7VxjmndtwMmfej9pQRNgTwCytyu4m3q7bhhxSDsUqQDAW1H6nrssr1it5Nqo+riA7+ohz6CbXjY2Txe/uRHB9tzWOe/JyD4qOY0Lw2X0awj99msR8tFyV7Gnp4pSfy2Smj4wz1oP3Jq0L3U0kTtnP5FvdU8OWr4OjHw2OckariF8=
+  file:
+    - 8xIO-linux-arm
+    - 8xIO-linux-amd64
+  skip_cleanup: true
+  on:
+    tags: true
