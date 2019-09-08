@@ -17,7 +17,8 @@ script:
   # Vet examines Go source code and reports suspicious constructs
   - go vet ./...
   # Can app be built?
-  - go build
+  - GOOS=linux GOARCH=arm go build -o 8xIO-linux-arm
+  - GOOS=linux GOARCH=amd64 go build -o 8xIO-linux-amd64
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 deploy:
