@@ -10,7 +10,7 @@ script:
   - UNFMT_LIST=$(gofmt -l $(find . -iname '*.go' -type f))
   - if [ "${UNFMT_LIST}" ]; then echo "${UNFMT_LIST}"; exit 1; fi
   # Run tests
-  - make test
+  - go test -race -coverprofile=coverage.txt -covermode=atomic ./...
   # Linter for Go source code
   #- go get -u golang.org/x/lint/golint
   #- golint -set_exit_status ./...
@@ -18,3 +18,5 @@ script:
   - go vet ./...
   # Can app be built?
   - go build
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
